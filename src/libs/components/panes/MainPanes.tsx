@@ -70,7 +70,7 @@ const MainPanes: FC<MainPanesProps> = ({
         items={panes.map((pane) => {
           return {
             key: pane.key,
-            label: 'asfsafa',
+            label: pane.label,
             children: pane.children,
           };
         })}
