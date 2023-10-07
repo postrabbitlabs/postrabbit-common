@@ -1,50 +1,39 @@
 
 import {PrcConfigProvider} from "@/remocollab/prc-base/PrcConfigProvider.tsx";
-import {useRoutes} from "react-router-dom";
+import {useLocation, useNavigate, useRoutes} from "react-router-dom";
 import routes from "~react-pages";
 import {Suspense} from "react";
-import { Table } from "antd";
+import {Button, Table, Tree} from "antd";
+import {TreeNode} from "@/remocollab/prc-base/token.ts";
+import {css} from "@emotion/react";
 const App = () => {
   console.log(routes,'routes')
 
+  const nav = useNavigate()
+  const loc  = useLocation()
+  function genTree(tree, path = '') {
+    return tree.map((item) => {
+      const fullPath = `${path}/${item.path}`.replace(/^\//, '');
 
-  const columns = [
-    {
-      title: '姓名',
-      dataIndex: 'path',
-      key: 'path',
-    },
-    {
-      title: '年龄',
-      dataIndex: 'age',
-      key: 'age',
-    },
-    {
-      title: '住址',
-      dataIndex: 'address',
-      key: 'address',
-    },
-  ];
-
-  function tree2list(tree) {
-    const list = []
-    const queue = [...tree]
-    while(queue.length) {
-      const node = queue.shift()
-      const children = node.children
-      if(children) {
-        queue.push(...children)
+      return {
+        title: item.path,
+        key: fullPath,
+        children: item.children ? genTree(item.children, fullPath) : []
       }
-      list.push(node)
-    }
-    return list
+    })
   }
 
 
   return (
     <PrcConfigProvider>
-      {/*换成树*/}
-      <Table dataSource={tree2list(routes)} columns={columns} />
+      <Button type={'primary'} css={css`position: fixed;right: 20px;bottom: 20px`} onClick={()=>{
+        nav('/')
+      }}>回到目录</Button>
+      {
+        loc.pathname ==='/'&&<Tree treeData={genTree(routes)} defaultExpandAll={true} onSelect={(key)=>{
+          nav(`/${key[0]}`)
+        }}/>
+      }
       <Suspense fallback={<p>Loading...</p>}>{useRoutes(routes)}</Suspense>
     </PrcConfigProvider>
   );
